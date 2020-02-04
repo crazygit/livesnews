@@ -47,7 +47,9 @@ class News:
 
     def to_markdown(self) -> str:
         return f"""
-{escape_text(self.text)} {escape_text(datetime.fromtimestamp(self.created_at / 1000, tz=timezone(timedelta(hours=8))).strftime('(%Y-%m-%d %H:%M)'))}
+{escape_text(self.text)}
+
+{escape_text(datetime.fromtimestamp(self.created_at / 1000, tz=timezone(timedelta(hours=8))).strftime('(%Y-%m-%d %H:%M)'))}
 """
 
 
