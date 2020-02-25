@@ -129,9 +129,9 @@ def send_news_message(context: CallbackContext) -> None:
         interval = context.job.context.get("interval")
         news_list = get_news()
         if news_list:
+            # 按照时间先后排序
+            news_list.reverse()
             for news in news_list:
-                # 按照时间先后排序
-                news_list.reverse()
                 if news.created_at + interval * 1000 >= int(time.time() * 1000):
                     logger.info(f"send message: {news.to_markdown()}")
                     context.bot.send_message(
