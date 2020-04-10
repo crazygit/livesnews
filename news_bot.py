@@ -8,6 +8,7 @@ from typing import List
 
 import requests
 from environs import Env
+from requests.cookies import RequestsCookieJar
 from telegram.error import (
     TelegramError,
     Unauthorized,
@@ -28,6 +29,15 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
+requests_headers = {
+    "User-Agent": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:70.0) Gecko/20100101 Firefox/70.0",
+    "X-Requested-With": "XMLHttpRequest",
+    "Referer": "https://xueqiu.com/today/",
+    "Accept": "application/json, text/javascript, */*; q=0.01",
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
+}
 
 
 @dataclass(frozen=True)
@@ -59,15 +69,8 @@ def get_news() -> List[News]:
     response = requests.get(
         url,
         params={"since_id": -1, "max_id": -1, "count": 10, "category": 6},
-        headers={
-            "User-Agent": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:70.0) Gecko/20100101 Firefox/70.0",
-            "X-Requested-With": "XMLHttpRequest",
-            "Referer": "https://xueqiu.com/today/",
-            "Accept": "application/json, text/javascript, */*; q=0.01",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
-            "Cookie": "xq_a_token=b2f87b997a1558e1023f18af36cab23af8d202ea; xq_a_token.sig=rGEdNjzVRbK-VzFo7CnhWwsMYGc; xq_r_token=823123c3118be244b35589176a5974c844687d5e; xq_r_token.sig=KW0vITvWQgEofh7n0DPy-8NqrPs; xqat=b2f87b997a1558e1023f18af36cab23af8d202ea; xqat.sig=teWfB0-jg4EDMhyV9fn0vjU25ow; u=901580696336852; cookiesu=901580696336852; Hm_lvt_1db88642e346389874251b5a1eded6e3=1580696147; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1580701025; device_id=078c42645a6d499ce5d08b866f4ca7a2",
-        },
+        headers=requests_headers,
+        cookies=get_cookie(),
     )
     news_list = []
     if response.status_code == 200:
@@ -86,6 +89,13 @@ def get_news() -> List[News]:
         logger.warning("Get news failed")
         logger.error(response.text)
     return news_list
+
+
+def get_cookie() -> RequestsCookieJar:
+    logger.info("get cookies")
+    url = "https://xueqiu.com/?category=livenews"
+    response = requests.get(url, headers=requests_headers)
+    return response.cookies
 
 
 def start(updater: Updater, context: CallbackContext) -> None:
