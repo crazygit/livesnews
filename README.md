@@ -1,3 +1,7 @@
+[DEPRECATED]
+
+Move to <https://github.com/crazygit/post-telegram-action>
+
 ## 财经新闻机器人
 
 不定期推送当前热门的财经信息
